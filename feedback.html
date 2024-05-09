@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Form</title>
+</head>
+<body>
+    <h1>Feedback Form</h1>
+    <form id="feedbackForm">
+        <label for="name">Enter your name:</label><br>
+        <input type="text" id="name" name="name"><br><br>
+
+        <label for="rating">Choose rating:</label><br>
+        <select id="rating" name="rating">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Overall Ratings</h2>
+    <div id="overallRatings">
+        <div>
+            <span>*</span> <span id="counter1">0</span>
+        </div>
+        <div>
+            <span>**</span> <span id="counter2">0</span>
+        </div>
+        <div>
+            <span>***</span> <span id="counter3">0</span>
+        </div>
+        <div>
+            <span>****</span> <span id="counter4">0</span>
+        </div>
+        <div>
+            <span>*****</span> <span id="counter5">0</span>
+        </div>
+    </div>
+    
+    <h2>All Feedbacks</h2>
+    <ul id="allFeedbacks"></ul>
+
+    <script>
+        // Function to fetch all stored feedbacks when the page loads
+        window.addEventListener("load", function() {
+            fetch("https://crudcrud.com/api/0f5bc26c132c410692853bd48e90d9f4/appointmentdata")
+            .then(response => response.json())
+            .then(data => {
+                const feedbackList = document.getElementById("allFeedbacks");
+                data.forEach(item => {
+                    const feedbackItem = document.createElement("li");
+                    feedbackItem.innerText = `Name: ${item.name}, Rating: ${item.rating}`;
+                    feedbackList.appendChild(feedbackItem);
+
+                    // Increment counter for the corresponding rating
+                    const counter = document.getElementById(`counter${item.rating}`);
+                    counter.textContent = parseInt(counter.textContent) + 1;
+                });
+            })
+            .catch(error => console.error("Error:", error));
+        });
+
+        // Event listener for form submission
+        document.getElementById("feedbackForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const rating = document.getElementById("rating").value;
+
+            // Display feedback
+            const feedbackList = document.getElementById("allFeedbacks");
+            const feedbackItem = document.createElement("li");
+            feedbackItem.innerText = `Name: ${name}, Rating: ${rating}`;
+            feedbackList.appendChild(feedbackItem);
+
+            // Increment counter for the corresponding rating
+            const counter = document.getElementById(`counter${rating}`);
+            counter.textContent = parseInt(counter.textContent) + 1;
+
+            // Send data to CRUD endpoint
+            fetch("https://crudcrud.com/api/0f5bc26c132c410692853bd48e90d9f4/appointmentdata", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name, rating })
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error("Error:", error));
+        });
+    </script>
+</body>
+</html>
